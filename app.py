@@ -97,15 +97,62 @@ class App:
         CTkButton(self.account_tab.tab('Create your account'), text="Create Account", command=lambda email=self.signup_email, password=self.signup_password, name=self.name: self.signup(name, email, password), height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(pady=30)
 
     def dashboard_page(self):
-        self.dashboard_frame = CTkFrame(master=self.root, fg_color=THEME_COlOR)
-        self.dashboard_frame.pack(fill="both", expand=True)
-
-        input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=700, height = 500, fg_color=WHITE)
-        input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
-        #input_frame.pack_propagate(0)
-
-        CTkLabel(input_frame, text='Welcome Awwab', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
-
+        self.dashboard_frame = CTkFrame(master=self.root, fg_color="beige")
+        self.dashboard_frame.pack(fill=BOTH, expand=True)
+        my_frame = CTkScrollableFrame(master=self.dashboard_frame , width=700 , height=500 ,
+        fg_color=WHITE,label_text="Specifications",label_font=("Arial Bold",40),label_anchor="center",corner_radius=1)
+        my_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
+        frame1=CTkFrame(master=my_frame , width=300 , height=220, fg_color="white")
+        frame1.pack(side=RIGHT,expand=True,fill=BOTH)
+        frame2=CTkFrame(master=my_frame , width=300 , height=220, fg_color="GRAY")
+        frame2.pack(side=LEFT,expand=True,fill=BOTH)
+        #Labels
+        l1=CTkLabel(frame2, text="Enter Company Name", fg_color="transparent")
+        l1.pack(pady=20)
+        l2=CTkLabel(frame2, text="Enter Type Name", fg_color="transparent")
+        l2.pack(pady=20)
+        l3=CTkLabel(frame2, text="Enter RAM", fg_color="transparent")
+        l3.pack(pady=20)
+        l4=CTkLabel(frame2, text="Enter GPU", fg_color="transparent")
+        l4.pack(pady=20)
+        l5=CTkLabel(frame2, text="Enter IPS", fg_color="transparent")
+        l5.pack(pady=20)
+        l6=CTkLabel(frame2, text="Enter PPI", fg_color="transparent")
+        l6.pack(pady=20)
+        l7=CTkLabel(frame2, text="Enter GHz", fg_color="transparent")
+        l7.pack(pady=20)
+        l8=CTkLabel(frame2, text="Enter HDD", fg_color="transparent")
+        l8.pack(pady=20)
+        l9=CTkLabel(frame2, text="Enter SSD", fg_color="transparent")
+        l9.pack(pady=20)
+        l10=CTkLabel(frame2, text="Enter CPU", fg_color="transparent")
+        l10.pack(pady=20)
+        l11=CTkLabel(frame2, text="Enter Operating System", fg_color="transparent")
+        l11.pack(pady=20)
+        #comboboxes
+        cb1=CTkComboBox(master=frame1,values=["Intel","Apple","HP","Lenovo","Samsung"],dropdown_fg_color="gray")
+        cb1.pack(pady=20)
+        cb2=CTkComboBox(master=frame1,values=["Ultrabook","Notebook","Convertible","Gaming"],dropdown_fg_color="gray")
+        cb2.pack(pady=20)
+        cb3=CTkComboBox(master=frame1,values=["4","8","16","32","64","128"],dropdown_fg_color="gray")
+        cb3.pack(pady=20)
+        cb4=CTkComboBox(master=frame1,values=["Nvidia GeForce","Intel Radeon","Intel HD","AMD Radeon"],dropdown_fg_color="gray")
+        cb4.pack(pady=20)
+        cb5=CTkComboBox(master=frame1,values=["0","1"],dropdown_fg_color="gray")
+        cb5.pack(pady=20)
+        cb6=CTkComboBox(master=frame1,values=["100","128","141","227"],dropdown_fg_color="gray")
+        cb6.pack(pady=20)
+        cb7=CTkComboBox(master=frame1,values=["1.5","2","2.5","3"],dropdown_fg_color="gray")
+        cb7.pack(pady=20)
+        cb8=CTkComboBox(master=frame1,values=["0","500","1000","1500"],dropdown_fg_color="gray")
+        cb8.pack(pady=20)
+        cb9=CTkComboBox(master=frame1,values=[0,128,256,512],dropdown_fg_color="gray")
+        cb9.pack(pady=20)
+        cb10=CTkComboBox(master=frame1,values=["Intel Core i5","Intel Core i7"],dropdown_fg_color="gray")
+        cb10.pack(pady=20)
+        cb11=CTkComboBox(master=frame1,values=["Windows 10","No OS","Linux"],dropdown_fg_color="gray")
+        cb11.pack(pady=20)
+         
 
     def login(self, email, password):
         data = {
@@ -113,16 +160,18 @@ class App:
             "password": password.get()
         }
         
-        res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
-        results = res.fetchall()
-        print(results)
-        if len(results) != 0:
-            if results[0][2] == data['password']:
-                self.account_frame.pack_forget()
-                self.dashboard_page()
-        else:
-            self.signin_error.configure(text='Invalid email or password')
-            self.signin_error.lift()
+        # res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
+        # results = res.fetchall()
+        # print(results)
+        # if len(results) != 0:
+        #     if results[0][2] == data['password']:
+        #         self.account_frame.pack_forget()
+        #         self.dashboard_page()
+        # else:
+        #     self.signin_error.configure(text='Invalid email or password')
+        #     self.signin_error.lift()
+        self.account_frame.pack_forget()
+        self.dashboard_page()
 
     def signup(self, name, email, password):
         data = {

@@ -2,6 +2,10 @@ from customtkinter import *
 from PIL import Image
 from contants import *
 import sqlite3
+# from cryptography.fernet import Fernet
+
+# key = Fernet.generate_key()
+# f = Fernet(key)
 
 set_appearance_mode("light")
 
@@ -49,7 +53,7 @@ class App:
         welcome_subtitle='Enter your details and hit sign in to access the main application'
         CTkLabel(self.account_tab.tab('Sign in'), text='Welcome', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
         CTkLabel(self.account_tab.tab('Sign in'), text=welcome_subtitle, text_color = GRAY, fg_color = 'transparent', font=('Arial', 15), wraplength=250).pack(pady=(10, 20))
-        self.signin_error = CTkLabel(self.account_tab.tab('Sign in'), width=200, corner_radius = 5, text_color = ERROR, fg_color = '#ffbfba', font=('Arial', 13))
+        self.signin_error = CTkLabel(self.account_tab.tab('Sign in'), width=200, corner_radius = 5, text_color = ERROR, fg_color = ERROR_FG, font=('Arial', 13))
         self.signin_error.pack()
         self.signin_error.lower()
         #email field
@@ -71,7 +75,7 @@ class App:
         CTkLabel(self.account_tab.tab('Create your account'), text='Create Account', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
         signup_subtitle="Let's create your awesome account, then you'll be able to use LPPRS"
         CTkLabel(self.account_tab.tab('Create your account'), text=signup_subtitle, text_color = GRAY, fg_color = 'transparent', font=('Arial', 15), wraplength=250).pack(pady=(10, 20))
-        self.signup_error = CTkLabel(self.account_tab.tab('Create your account'), width=150, corner_radius = 5, text_color = ERROR, fg_color = '#ffbfba', font=('Arial', 13))
+        self.signup_error = CTkLabel(self.account_tab.tab('Create your account'), width=150, corner_radius = 5, text_color = ERROR, fg_color = ERROR_FG, font=('Arial', 13))
         self.signup_error.pack()
         self.signup_error.lower()
         # Full Name
@@ -95,7 +99,12 @@ class App:
     def dashboard_page(self):
         self.dashboard_frame = CTkFrame(master=self.root, fg_color=THEME_COlOR)
         self.dashboard_frame.pack(fill="both", expand=True)
-        CTkLabel(self.dashboard_frame, text='Welcome Awwab', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
+
+        input_frame = CTkFrame(master=self.dashboard_frame, width=500, height = 700, fg_color=WHITE)
+        input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
+        input_frame.pack_propagate(0)
+
+        CTkLabel(input_frame, text='Welcome Awwab', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
 
 
     def login(self, email, password):
@@ -104,6 +113,16 @@ class App:
             "password": password.get()
         }
         
+        res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
+        results = res.fetchall()
+        print(results)
+        if len(results) != 0:
+            if results[0][2] == data['password']:
+                self.account_frame.pack_forget()
+                self.dashboard_page()
+        else:
+            self.signin_error.configure(text='Invalid email or password')
+            self.signin_error.lift()
 
     def signup(self, name, email, password):
         data = {
@@ -112,7 +131,6 @@ class App:
             "password": str(password.get())
         }
         if data['name'] and data['email'] and data['password']:
-            print(data)
             self.cur.execute(f"""
             INSERT INTO accounts VALUES
                 ('{data['name']}', '{data['email']}', '{data['password']}')

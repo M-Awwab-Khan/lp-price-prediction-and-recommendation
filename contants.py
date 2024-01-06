@@ -1,5 +1,6 @@
 THEME_COlOR = 'dodgerblue1'
 ERROR = 'firebrick3'
+ERROR_FG = '#ffbfba'
 WHITE = 'white'
 GRAY = 'gray30'
 BLACK = 'black'

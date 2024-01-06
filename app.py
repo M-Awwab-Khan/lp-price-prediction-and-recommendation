@@ -28,7 +28,7 @@ mframe.pack(fill="both", expand=True)
 # TabView to hold login elements
 login_container = CTkTabview(mframe, height=400, width=300, fg_color='white', segmented_button_fg_color=WHITE, segmented_button_selected_color=THEME_COlOR, segmented_button_unselected_color=GRAY, text_color=WHITE)
 login_container.place(in_=mframe, anchor='c', relx=.5, rely=.5)
-login_container.pack_propagate(0)
+# login_container.pack_propagate(0) # 
 
 login_container.add("Sign in")  # add tab at the end
 login_container.add("Create your account")  # add tab at the end

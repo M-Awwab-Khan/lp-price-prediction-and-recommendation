@@ -14,6 +14,8 @@ class App:
         self.root.geometry("1280x720")
 
         self.create_account_page()
+        self.con = sqlite3.connect("database.db")
+        self.cur = self.con.cursor()
 
         self.root.mainloop()
 
@@ -69,7 +71,7 @@ class App:
         CTkLabel(self.account_tab.tab('Create your account'), text='Create Account', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
         signup_subtitle="Let's create your awesome account, then you'll be able to use LPPRS"
         CTkLabel(self.account_tab.tab('Create your account'), text=signup_subtitle, text_color = GRAY, fg_color = 'transparent', font=('Arial', 15), wraplength=250).pack(pady=(10, 20))
-        self.signup_error = CTkLabel(self.account_tab.tab('Sign in'), width=200, corner_radius = 5, text_color = ERROR, fg_color = '#ffbfba', font=('Arial', 13))
+        self.signup_error = CTkLabel(self.account_tab.tab('Create your account'), width=150, corner_radius = 5, text_color = ERROR, fg_color = '#ffbfba', font=('Arial', 13))
         self.signup_error.pack()
         self.signup_error.lower()
         # Full Name
@@ -101,22 +103,26 @@ class App:
             "email": email.get(),
             "password": password.get()
         }
-        if data['email'] != 'awwab':
-            self.signin_error.config(text='Incorrect email or password')
-            self.signin_error.lift()
-        else:
-            self.account_frame.pack_forget()
-            self.dashboard_page()
+        
 
     def signup(self, name, email, password):
-        con = sqlite3.connect("accounts.db")
         data = {
-            "name": name.get(),
-            "email": email.get(),
-            "password": password.get()
+            "name": str(name.get()),
+            "email": str(email.get()),
+            "password": str(password.get())
         }
-
-        print(name.get(), email.get(), password.get())
+        if data['name'] and data['email'] and data['password']:
+            print(data)
+            self.cur.execute(f"""
+            INSERT INTO accounts VALUES
+                ('{data['name']}', '{data['email']}', '{data['password']}')
+            """)
+            self.con.commit()
+            self.account_frame.pack_forget()
+            self.dashboard_page()
+        else:
+            self.signup_error.configure(text='Missing values')
+            self.signup_error.lift()
 
 if __name__ == '__main__':
     app = App()

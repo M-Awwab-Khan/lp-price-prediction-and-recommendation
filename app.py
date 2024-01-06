@@ -100,9 +100,9 @@ class App:
         self.dashboard_frame = CTkFrame(master=self.root, fg_color=THEME_COlOR)
         self.dashboard_frame.pack(fill="both", expand=True)
 
-        input_frame = CTkFrame(master=self.dashboard_frame, width=500, height = 700, fg_color=WHITE)
+        input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=700, height = 500, fg_color=WHITE)
         input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
-        input_frame.pack_propagate(0)
+        #input_frame.pack_propagate(0)
 
         CTkLabel(input_frame, text='Welcome Awwab', text_color = BLACK, fg_color = 'transparent', font=('Arial', 30, 'bold')).pack(pady=(30, 0))
 

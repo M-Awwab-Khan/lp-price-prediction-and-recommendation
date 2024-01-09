@@ -2,10 +2,12 @@ from customtkinter import *
 from PIL import Image
 from contants import *
 import sqlite3
-# from cryptography.fernet import Fernet
+import pickle
+import pandas as pd
+import numpy as np
 
-# key = Fernet.generate_key()
-# f = Fernet(key)
+pipe = pickle.load(open('pipe.pkl', 'rb'))
+df = pd.read_csv('cleaned_data.csv')
 
 set_appearance_mode("light")
 
@@ -99,9 +101,10 @@ class App:
     def dashboard_page(self):
         self.dashboard_frame = CTkFrame(master=self.root, fg_color=THEME_COlOR)
         self.dashboard_frame.pack(fill=BOTH, expand=True)
-        my_frame = CTkScrollableFrame(master=self.dashboard_frame , width=400 , height=500 ,
+        self.dashboard_frame.pack_propagate(0)
+        my_frame = CTkScrollableFrame(master=self.dashboard_frame , width=450 , height=400 ,
         fg_color=WHITE,corner_radius=20)
-        CTkLabel(master=my_frame, text="Enter Specifications", font=("Arial bold", 30)).pack(pady=(30, 0))
+        CTkLabel(master=my_frame, text="Enter Specifications", font=("Arial", 30, "bold")).pack(pady=(30, 0))
         my_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
         frame1=CTkFrame(master=my_frame , width=300 , height=220, fg_color=WHITE)
         frame1.pack(pady=30, side=RIGHT,expand=True,fill=BOTH)
@@ -112,48 +115,96 @@ class App:
         l1.pack(padx=13, pady=10, anchor="w")
         l2=CTkLabel(frame2, text="Enter Type Name", fg_color="transparent", font=("Arial", 15))
         l2.pack(padx=13, pady=10, anchor="w")
-        l3=CTkLabel(frame2, text="Enter RAM", fg_color="transparent", font=("Arial", 15))
+        l2=CTkLabel(frame2, text="Enter Weight (kg)", fg_color="transparent", font=("Arial", 15))
+        l2.pack(padx=13, pady=10, anchor="w")
+        l3=CTkLabel(frame2, text="Enter RAM (GB)", fg_color="transparent", font=("Arial", 15))
         l3.pack(padx=13, pady=10, anchor="w")
-        l4=CTkLabel(frame2, text="Enter GPU", fg_color="transparent", font=("Arial", 15))
+        l4=CTkLabel(frame2, text="Enter GPU Name", fg_color="transparent", font=("Arial", 15))
         l4.pack(padx=13, pady=10, anchor="w")    
         l5=CTkLabel(frame2, text="Enter IPS", fg_color="transparent", font=("Arial", 15))
         l5.pack(padx=13, pady=10, anchor="w")
-        l6=CTkLabel(frame2, text="Enter PPI", fg_color="transparent", font=("Arial", 15))
+        l13=CTkLabel(frame2, text="Enter Touchscreen", fg_color="transparent", font=("Arial", 15))
+        l13.pack(padx=13, pady=10, anchor="w")
+        l6=CTkLabel(frame2, text="Enter Screen Size (inches)", fg_color="transparent", font=("Arial", 15))
         l6.pack(padx=13, pady=10, anchor="w")
-        l7=CTkLabel(frame2, text="Enter GHz", fg_color="transparent", font=("Arial", 15))
+        l7=CTkLabel(frame2, text="Enter Screen Resolution", fg_color="transparent", font=("Arial", 15))
         l7.pack(padx=13, pady=10, anchor="w")
-        l8=CTkLabel(frame2, text="Enter HDD", fg_color="transparent", font=("Arial", 15))
+        l8=CTkLabel(frame2, text="Enter Processor Speed (GHz)", fg_color="transparent", font=("Arial", 15))
         l8.pack(padx=13, pady=10, anchor="w")
-        l9=CTkLabel(frame2, text="Enter SSD", fg_color="transparent", font=("Arial", 15))
+        l9=CTkLabel(frame2, text="Enter HDD (GB)", fg_color="transparent", font=("Arial", 15))
         l9.pack(padx=13, pady=10, anchor="w")
-        l10=CTkLabel(frame2, text="Enter CPU", fg_color="transparent", font=("Arial", 15))
+        l10=CTkLabel(frame2, text="Enter SSD (GB)", fg_color="transparent", font=("Arial", 15))
         l10.pack(padx=13, pady=10, anchor="w")
-        l11=CTkLabel(frame2, text="Enter Operating System", fg_color="transparent")
+        l11=CTkLabel(frame2, text="Enter CPU Name", fg_color="transparent", font=("Arial", 15))
         l11.pack(padx=13, pady=10, anchor="w")
+        l12=CTkLabel(frame2, text="Enter Operating System", fg_color="transparent", font=("Arial", 15))
+        l12.pack(padx=13, pady=10, anchor="w")
         #comboboxes
-        cb1=CTkComboBox(master=frame1,values=["Intel","Apple","HP","Lenovo","Samsung"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb1.pack(pady=10,padx=10, fill='x', expand=True)
-        cb2=CTkComboBox(master=frame1,values=["Ultrabook","Notebook","Convertible","Gaming"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb2.pack(pady=10,padx=10, fill='x', expand=True)
-        cb3=CTkComboBox(master=frame1,values=["4","8","16","32","64","128"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb3.pack(pady=10,padx=10, fill='x', expand=True)
-        cb4=CTkComboBox(master=frame1,values=["Nvidia GeForce","Intel Radeon","Intel HD","AMD Radeon"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb4.pack(pady=10,padx=10, fill='x', expand=True)
-        cb5=CTkComboBox(master=frame1,values=["0","1"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb5.pack(pady=10,padx=10, fill='x', expand=True)
-        cb6=CTkComboBox(master=frame1,values=["100","128","141","227"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb6.pack(pady=10,padx=10, fill='x', expand=True)
-        cb7=CTkComboBox(master=frame1,values=["1.5","2","2.5","3"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb7.pack(pady=10,padx=10, fill='x', expand=True)
-        cb8=CTkComboBox(master=frame1,values=["0","500","1000","1500"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb8.pack(pady=10,padx=10, fill='x', expand=True)
-        cb9=CTkComboBox(master=frame1,values=['0','128','256','512'], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb9.pack(pady=10,padx=10, fill='x', expand=True)
-        cb10=CTkComboBox(master=frame1,values=["Intel Core i5","Intel Core i7"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb10.pack(pady=10,padx=10, fill='x', expand=True)
-        cb11=CTkComboBox(master=frame1,values=["Windows 10","No OS","Linux"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
-        cb11.pack(pady=10,padx=10, fill='x', expand=True)
-         
+        self.brandname=CTkComboBox(master=frame1,values=list(df['Company'].unique()), dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.brandname.pack(pady=10,padx=10, fill='x', expand=True)
+        self.typename=CTkComboBox(master=frame1,values=list(df['TypeName'].unique()), dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.typename.pack(pady=10,padx=10, fill='x', expand=True)
+        self.weight=CTkEntry(master=frame1, height=30)
+        self.weight.pack(pady=10,padx=10, fill='x', expand=True)
+        self.ram=CTkComboBox(master=frame1,values=["2", "4","8", "12", "16", "24","32","64","128"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.ram.pack(pady=10,padx=10, fill='x', expand=True)
+        self.gpu=CTkComboBox(master=frame1,values=list(df['Gpu'].unique()), dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.gpu.pack(pady=10,padx=10, fill='x', expand=True)
+        self.ips=CTkComboBox(master=frame1,values=["Yes","No"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.ips.pack(pady=10,padx=10, fill='x', expand=True)
+        self.touchscreen=CTkComboBox(master=frame1,values=["Yes","No"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.touchscreen.pack(pady=10,padx=10, fill='x', expand=True)
+        self.screensize=CTkEntry(master=frame1, height=30)
+        self.screensize.pack(pady=10,padx=10, fill='x', expand=True)
+        self.resolution=CTkComboBox(master=frame1,values=['1920x1080','1366x768','1600x900','3840x2160','3200x1800','2880x1800','2560x1600','2560x1440','2304x1440'], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.resolution.pack(pady=10,padx=10, fill='x', expand=True)
+        self.ghz=CTkEntry(master=frame1, height=30)
+        self.ghz.pack(pady=10,padx=10, fill='x', expand=True)
+        self.hdd=CTkComboBox(master=frame1,values=["0","128","256","512","1024","2048"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.hdd.pack(pady=10,padx=10, fill='x', expand=True)
+        self.ssd=CTkComboBox(master=frame1,values=['0','128','256','512', "1024"], dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.ssd.pack(pady=10,padx=10, fill='x', expand=True)
+        self.cpu=CTkComboBox(master=frame1,values=list(df['CPU Name'].unique()), dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.cpu.pack(pady=10,padx=10, fill='x', expand=True)
+        self.os=CTkComboBox(master=frame1,values=list(df['os'].unique()), dropdown_fg_color=WHITE, dropdown_hover_color =THEME_COlOR, button_color=THEME_COlOR, width=150, corner_radius=5)
+        self.os.pack(pady=(10, 40),padx=10, fill='x', expand=True)
+
+        #predict button
+        CTkButton(my_frame, text="Predict", command=self.predict_price, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=my_frame, anchor='s', relx=.5, rely=1)
+        prediction_frame = CTkFrame(master=self.dashboard_frame , width=400 , height=50 ,
+        fg_color=WHITE,corner_radius=20)
+        prediction_frame.place(in_=self.dashboard_frame, anchor='s', relx=.5, rely=.97)
+        self.price_label = CTkLabel(master=prediction_frame, text='The predicted price will display here', font=("Arial", 20))
+        self.price_label.pack(pady=30, padx=30)
+
+    def predict_price(self):
+        brandname = self.brandname.get()
+        typename = self.typename.get()
+        ram = int(self.ram.get())
+        gpu = self.gpu.get()
+        weight = float(self.weight.get())
+        cpu = self.cpu.get()
+        ghz = float(self.ghz.get())
+        hdd = int(self.hdd.get())
+        ssd = int(self.ssd.get())
+        os = self.os.get()
+        screensize = float(self.screensize.get())
+        x_res = int(self.resolution.get().split('x')[0])
+        y_res = int(self.resolution.get().split('x')[1])
+        ppi = (((x_res**2) + (y_res**2))**0.5) / screensize
+        if self.touchscreen.get() == "Yes":
+            touchscreen = 1
+        else:
+            touchscreen = 0
+        if self.ips.get() == "Yes":
+            ips = 1
+        else:
+            ips = 0
+
+        input_array = np.array([brandname, typename, ram, gpu, weight, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os], dtype='object')
+        input_array = input_array.reshape(1, 13)
+        price = round(np.exp(pipe.predict(input_array)[0]))
+        self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")
 
     def login(self, email, password):
         data = {

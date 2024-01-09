@@ -99,13 +99,28 @@ class App:
         CTkButton(self.account_tab.tab('Create your account'), text="Create Account", command=lambda email=self.signup_email, password=self.signup_password, name=self.name: self.signup(name, email, password), height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(pady=30)
 
     def dashboard_page(self):
+        # Dashboard Frame
         self.dashboard_frame = CTkFrame(master=self.root, fg_color=THEME_COlOR)
         self.dashboard_frame.pack(fill=BOTH, expand=True)
         self.dashboard_frame.pack_propagate(0)
-        input_frame = CTkScrollableFrame(master=self.dashboard_frame , width=450 , height=400 ,
-        fg_color=WHITE,corner_radius=20)
-        CTkLabel(master=input_frame, text="Enter Specifications", font=("Arial", 30, "bold")).pack(pady=(30, 0))
+
+        # Title Frame
+        title_frame = CTkFrame(master=self.dashboard_frame, width=self.root.winfo_width(), height=50, fg_color=WHITE)
+        title_frame.pack()
+        title_frame.pack_propagate(0)
+
+        # Title and Logout Button
+        CTkLabel(master=title_frame, text='Laptop Price Prediction and Recommendation System', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(side=LEFT, padx=20)
+        CTkButton(master=title_frame, text='Logout', height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
+        
+        # Scrollable Input Frame
+        input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450 , height=400, fg_color=WHITE, corner_radius=10)
         input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
+
+        # Heading
+        CTkLabel(master=input_frame, text="Enter Specifications", text_color=THEME_COlOR, font=("Arial", 30, "bold")).pack(pady=(30, 0))
+        
+        # Labels and Entry Frame
         labels_frame=CTkFrame(master=input_frame , width=300 , height=220, fg_color=WHITE)
         labels_frame.pack(pady=30, side=RIGHT,expand=True,fill=BOTH)
         entry_frame=CTkFrame(master=input_frame , width=300 , height=220, fg_color=WHITE)

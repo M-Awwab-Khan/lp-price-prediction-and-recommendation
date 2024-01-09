@@ -159,10 +159,18 @@ class App:
 
         #predict button
         CTkButton(input_frame, text="Predict", command=self.predict_price, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=input_frame, anchor='s', relx=.5, rely=1)
-        prediction_frame = CTkFrame(master=self.dashboard_frame , width=400 , height=50 ,fg_color=WHITE,corner_radius=20)
-        prediction_frame.place(in_=self.dashboard_frame, anchor='s', relx=.5, rely=.97)
-        self.price_label = CTkLabel(master=prediction_frame, text='The predicted price will display here', font=("Arial", 20))
-        self.price_label.pack(pady=20, padx=30)
+        
+    def show_prediction(self, price):
+        try:
+            self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")
+        except AttributeError:
+            #prediciton frame
+            prediction_frame = CTkFrame(master=self.dashboard_frame , width=400 , height=50 ,fg_color=WHITE,corner_radius=20)
+            prediction_frame.place(in_=self.dashboard_frame, anchor='s', relx=.5, rely=.94)
+            
+            #price label in prediction frame
+            self.price_label = CTkLabel(master=prediction_frame, text=f"The predicted price for this configuration is Rs. {price}", font=("Arial", 20))
+            self.price_label.pack(pady=20, padx=30)        
 
     def predict_price(self):
         brandname = self.brandname.get()
@@ -191,7 +199,7 @@ class App:
         input_array = np.array([brandname, typename, ram, gpu, weight, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os], dtype='object')
         input_array = input_array.reshape(1, 13)
         price = round(np.exp(pipe.predict(input_array)[0]))
-        self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")
+        self.show_prediction(price)
 
     def login(self, email, password):
         data = {

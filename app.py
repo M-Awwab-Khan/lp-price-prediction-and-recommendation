@@ -111,7 +111,7 @@ class App:
 
         # Title and Logout Button
         CTkLabel(master=title_frame, text='Laptop Price Prediction and Recommendation System', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(side=LEFT, padx=20)
-        CTkButton(master=title_frame, text='Logout', height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
+        CTkButton(master=title_frame, text='Logout', command=self.logout, height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
         
         # Scrollable Input Frame
         input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450 , height=400, fg_color=WHITE, corner_radius=10)
@@ -175,6 +175,10 @@ class App:
         #predict button
         CTkButton(input_frame, text="Predict", command=self.predict_price, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=input_frame, anchor='s', relx=.5, rely=1)
         
+    def logout(self):
+        self.dashboard_frame.pack_forget()
+        self.create_account_page()
+
     def show_prediction(self, price):
         try:
             self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")

@@ -5,9 +5,11 @@ import sqlite3
 import pickle
 import pandas as pd
 import numpy as np
+from rec_mdl import get_recommendations
 
 pipe = pickle.load(open('pipe.pkl', 'rb'))
 df = pd.read_csv('cleaned_data.csv')
+
 
 set_appearance_mode("light")
 
@@ -113,9 +115,13 @@ class App:
         CTkLabel(master=title_frame, text='Laptop Price Prediction and Recommendation System', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(side=LEFT, padx=20)
         CTkButton(master=title_frame, text='Logout', command=self.logout, height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
         
+        # Recommendation Frame
+        self.recommendation_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450, height=400, fg_color=WHITE, corner_radius=10)
+        self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
+
         # Scrollable Input Frame
         input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450 , height=400, fg_color=WHITE, corner_radius=10)
-        input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
+        input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.3, rely=.5)
 
         # Heading
         CTkLabel(master=input_frame, text="Enter Specifications", text_color=THEME_COlOR, font=("Arial", 30, "bold")).pack(pady=(30, 0))
@@ -173,25 +179,27 @@ class App:
         self.os.pack(pady=(10, 40),padx=10, fill='x', expand=True)
 
         #predict button
-        CTkButton(input_frame, text="Predict", command=self.predict_price, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=input_frame, anchor='s', relx=.5, rely=1)
+        CTkButton(input_frame, text="Predict", command=self.predict_and_recommend, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=input_frame, anchor='s', relx=.5, rely=1)
         
     def logout(self):
         self.dashboard_frame.pack_forget()
         self.create_account_page()
 
+    def show_recommendations(self, recommendations_df):
+        print(recommendations_df)
     def show_prediction(self, price):
         try:
             self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")
         except AttributeError:
             #prediciton frame
-            prediction_frame = CTkFrame(master=self.dashboard_frame , width=400 , height=50 ,fg_color=WHITE,corner_radius=20)
+            prediction_frame = CTkFrame(master=self.dashboard_frame , width=400 , height=50 ,fg_color=WHITE,corner_radius=10)
             prediction_frame.place(in_=self.dashboard_frame, anchor='s', relx=.5, rely=.94)
             
             #price label in prediction frame
             self.price_label = CTkLabel(master=prediction_frame, text=f"The predicted price for this configuration is Rs. {price}", font=("Arial", 20))
             self.price_label.pack(pady=20, padx=30)        
 
-    def predict_price(self):
+    def predict_and_recommend(self):
         brandname = self.brandname.get()
         typename = self.typename.get()
         ram = int(self.ram.get())
@@ -218,7 +226,9 @@ class App:
         input_array = np.array([brandname, typename, ram, gpu, weight, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os], dtype='object')
         input_array = input_array.reshape(1, 13)
         price = round(np.exp(pipe.predict(input_array)[0]))
+        recommendations_df = get_recommendations(brandname, typename, ram, gpu, weight, price, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os)
         self.show_prediction(price)
+        self.show_recommendations(recommendations_df)
 
     def login(self, email, password):
         data = {

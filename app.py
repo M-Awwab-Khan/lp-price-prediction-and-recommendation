@@ -20,6 +20,7 @@ class App:
         # Creating master window
         self.root = CTk()
         self.root.geometry("1280x720")
+        self.root.resizable(False, False)
 
         self.create_account_page()
         self.con = sqlite3.connect("database.db")
@@ -117,19 +118,18 @@ class App:
         
         # Recommendation Frame
         self.recommendation_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450, height=400, fg_color=WHITE, corner_radius=10)
-        self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
 
         # Scrollable Input Frame
-        input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450 , height=400, fg_color=WHITE, corner_radius=10)
-        input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.3, rely=.5)
+        self.input_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450 , height=400, fg_color=WHITE, corner_radius=10)
+        self.input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.5, rely=.5)
 
         # Heading
-        CTkLabel(master=input_frame, text="Enter Specifications", text_color=THEME_COlOR, font=("Arial", 30, "bold")).pack(pady=(30, 0))
+        CTkLabel(master=self.input_frame, text="Enter Specifications", text_color=THEME_COlOR, font=("Arial", 30, "bold")).pack(pady=(30, 0))
         
         # Labels and Entry Frame
-        labels_frame=CTkFrame(master=input_frame , width=300 , height=220, fg_color=WHITE)
+        labels_frame=CTkFrame(master=self.input_frame , width=300 , height=220, fg_color=WHITE)
         labels_frame.pack(pady=30, side=RIGHT,expand=True,fill=BOTH)
-        entry_frame=CTkFrame(master=input_frame , width=300 , height=220, fg_color=WHITE)
+        entry_frame=CTkFrame(master=self.input_frame , width=300 , height=220, fg_color=WHITE)
         entry_frame.pack(pady=30, side=LEFT,expand=True,fill=BOTH)
 
         #Labels
@@ -179,14 +179,31 @@ class App:
         self.os.pack(pady=(10, 40),padx=10, fill='x', expand=True)
 
         #predict button
-        CTkButton(input_frame, text="Predict", command=self.predict_and_recommend, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=input_frame, anchor='s', relx=.5, rely=1)
+        CTkButton(self.input_frame, text="Predict", command=self.predict_and_recommend, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=self.input_frame, anchor='s', relx=.5, rely=1)
         
     def logout(self):
         self.dashboard_frame.pack_forget()
         self.create_account_page()
 
     def show_recommendations(self, recommendations_df):
-        print(recommendations_df)
+        # input frame reposition
+        self.input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.3, rely=.5)
+        # Recommendation Frame
+        self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
+        # dataframe to list of dictionaries
+        rec_list = recommendations_df.to_dict('records')
+        print(rec_list)
+        for rec in rec_list:
+            rec_frame = CTkFrame(master=self.recommendation_frame, width=430, height=140, fg_color=LIGHT_BLUE, corner_radius=5)
+            rec_frame.pack(pady=10)
+            rec_frame.pack_propagate(0)
+            CTkButton(rec_frame, text='Save', height=20, width=60, fg_color=THEME_COlOR, corner_radius=3).pack(anchor='e')
+            CTkLabel(rec_frame, height=14, text=f"Rs. {round(int(rec['Price']))}", font=('Arial', 17, 'bold'), anchor='w').pack(anchor='w',padx=7, pady=(0, 5))
+            CTkLabel(rec_frame, height=14, text=f"{rec['Company']} {rec['TypeName']} {rec['Inches']} inches {rec['ScreenResolution']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
+            CTkLabel(rec_frame, height=14, text=f"{rec['Cpu']} {rec['Ram']} {rec['Memory']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
+            CTkLabel(rec_frame, height=14, text=f"{rec['Gpu']} {rec['OpSys']} {rec['Weight']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
+
+
     def show_prediction(self, price):
         try:
             self.price_label.configure(text=f"The predicted price for this configuration is Rs. {price}")
@@ -228,6 +245,8 @@ class App:
         price = round(np.exp(pipe.predict(input_array)[0]))
         recommendations_df = get_recommendations(brandname, typename, ram, gpu, weight, price, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os)
         self.show_prediction(price)
+        for widget in self.recommendation_frame.winfo_children():
+            widget.destroy()
         self.show_recommendations(recommendations_df)
 
     def login(self, email, password):

@@ -6,6 +6,8 @@ import pickle
 import pandas as pd
 import numpy as np
 from rec_mdl import get_recommendations
+from CTkMessagebox import CTkMessagebox
+
 
 pipe = pickle.load(open('pipe.pkl', 'rb'))
 df = pd.read_csv('cleaned_data.csv')
@@ -108,14 +110,15 @@ class App:
         self.dashboard_frame.pack_propagate(0)
 
         # Title Frame
-        title_frame = CTkFrame(master=self.dashboard_frame, width=self.root.winfo_width(), height=50, fg_color=WHITE)
-        title_frame.pack()
-        title_frame.pack_propagate(0)
+        self.title_frame = CTkFrame(master=self.dashboard_frame, width=self.root.winfo_width(), height=50, fg_color=WHITE)
+        self.title_frame.pack()
+        self.title_frame.pack_propagate(0)
 
         # Title and Logout Button
-        CTkLabel(master=title_frame, text='Laptop Price Prediction and Recommendation System', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(side=LEFT, padx=20)
-        CTkButton(master=title_frame, text='Logout', command=self.logout, height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
-        
+        CTkLabel(master=self.title_frame, text='Laptop Price Prediction and Recommendation System', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(side=LEFT, padx=20)
+        CTkButton(master=self.title_frame, text='Logout', command=self.logout, height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=20)
+        CTkButton(master=self.title_frame, text='Saved', command=self.saved_remmendations_page, height=30, width=100, corner_radius=20, fg_color=THEME_COlOR).pack(side=RIGHT, padx=30)
+
         # Recommendation Frame
         self.recommendation_frame = CTkScrollableFrame(master=self.dashboard_frame, width=450, height=400, fg_color=WHITE, corner_radius=10)
 
@@ -180,10 +183,33 @@ class App:
 
         #predict button
         CTkButton(self.input_frame, text="Predict", command=self.predict_and_recommend, height=40, width=150, corner_radius=20, fg_color=THEME_COlOR).place(in_=self.input_frame, anchor='s', relx=.5, rely=1)
-        
+    def saved_remmendations_page(self):
+        self.dashboard_frame.pack_forget()
+        self.recommendations_page = CTkFrame(master=self.root, fg_color=THEME_COlOR)
+        self.recommendations_page.pack(fill=BOTH, expand=True)
+        self.recommendations_page.pack_propagate(0)
     def logout(self):
         self.dashboard_frame.pack_forget()
         self.create_account_page()
+
+    def save_recommendation(self, rec):
+        query = f"""SELECT * FROM saved_recommendations 
+                    WHERE email = '{self.email}' AND company='{rec['Company']}' AND typename='{rec['TypeName']}' AND screen_resolution='{rec['ScreenResolution']}' AND cpu='{rec['Cpu']}' AND ram = '{rec['Ram']}' AND memory='{rec['Memory']}' AND gpu='{rec['Gpu']}' AND os='{rec['OpSys']}' AND weight='{rec['Weight']}' AND price={rec['Price']}"""
+        res = self.cur.execute(query)
+        results = res.fetchall()
+        if len(results) == 0:
+            self.cur.execute(f"""INSERT INTO saved_recommendations VALUES
+                            ('{self.email}', '{rec['Company']}', '{rec['TypeName']}', {rec['Inches']}, '{rec['ScreenResolution']}', '{rec['Cpu']}', '{rec['Ram']}', '{rec['Memory']}', '{rec['Gpu']}', '{rec['OpSys']}', '{rec['Weight']}', {rec['Price']})
+                        """)
+            self.con.commit()
+        else:
+            CTkMessagebox(
+                  message="Recommedation Already Saved", 
+                  icon="cancel", 
+                  option_1="OK",
+                  title='Error'
+                )
+        
 
     def show_recommendations(self, recommendations_df):
         # input frame reposition
@@ -197,12 +223,11 @@ class App:
             rec_frame = CTkFrame(master=self.recommendation_frame, width=430, height=140, fg_color=LIGHT_BLUE, corner_radius=5)
             rec_frame.pack(pady=10)
             rec_frame.pack_propagate(0)
-            CTkButton(rec_frame, text='Save', height=20, width=60, fg_color=THEME_COlOR, corner_radius=3).pack(anchor='e')
+            CTkButton(rec_frame, text='Save', height=20, width=60, fg_color=THEME_COlOR, corner_radius=3, command=lambda x=rec: self.save_recommendation(x)).pack(anchor='e')
             CTkLabel(rec_frame, height=14, text=f"Rs. {round(int(rec['Price']))}", font=('Arial', 17, 'bold'), anchor='w').pack(anchor='w',padx=7, pady=(0, 5))
             CTkLabel(rec_frame, height=14, text=f"{rec['Company']} {rec['TypeName']} {rec['Inches']} inches {rec['ScreenResolution']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
             CTkLabel(rec_frame, height=14, text=f"{rec['Cpu']} {rec['Ram']} {rec['Memory']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
             CTkLabel(rec_frame, height=14, text=f"{rec['Gpu']} {rec['OpSys']} {rec['Weight']}", font=('Arial', 13), wraplength=400).pack(anchor="w",padx=7, pady=3)
-
 
     def show_prediction(self, price):
         try:
@@ -255,18 +280,19 @@ class App:
             "password": password.get()
         }
         
-        # res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
-        # results = res.fetchall()
-        # print(results)
-        # if len(results) != 0:
-        #     if results[0][2] == data['password']:
-        #         self.account_frame.pack_forget()
-        #         self.dashboard_page()
-        # else:
-        #     self.signin_error.configure(text='Invalid email or password')
-        #     self.signin_error.lift()
-        self.account_frame.pack_forget()
-        self.dashboard_page()
+        res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
+        results = res.fetchall()
+        print(results)
+        if len(results) != 0:
+            if results[0][2] == data['password']:
+                self.account_frame.pack_forget()
+                self.dashboard_page()
+                self.email = results[0][1]
+        else:
+            self.signin_error.configure(text='Invalid email or password')
+            self.signin_error.lift()
+        # self.account_frame.pack_forget()
+        # self.dashboard_page()
 
     def signup(self, name, email, password):
         data = {

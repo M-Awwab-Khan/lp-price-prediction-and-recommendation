@@ -212,11 +212,13 @@ class App:
         # Back button
         CTkButton(master=self.recommendations_page, width=70, height=30, fg_color=WHITE, text_color=THEME_COlOR, text='⬅ Back', font=('Arial', 14), corner_radius=20, command=self.back_to_dashboard_page).pack(anchor='nw', pady=20 , padx=20)
     
-        # Creating scrollable saved_recommendations_frame 
-        saved_recommendations_frame = CTkScrollableFrame(master=self.recommendations_page, width=700, height=550, fg_color=WHITE, corner_radius=10)
-        saved_recommendations_frame.place(in_=self.recommendations_page, anchor='c', relx=.5, rely=.5)
+        # Creating scrollable self.saved_recommendations_frame 
+        self.saved_recommendations_frame = CTkScrollableFrame(master=self.recommendations_page, width=700, height=550, fg_color=WHITE, corner_radius=10)
+        self.saved_recommendations_frame.place(in_=self.recommendations_page, anchor='c', relx=.5, rely=.5)
+        
         # heading
-        CTkLabel(master=saved_recommendations_frame, text='Your Saved Recommendations', font=('Arial', 30, 'bold'), text_color=THEME_COlOR).pack(padx=10, pady=20)
+        CTkLabel(master=self.saved_recommendations_frame, text='Your Saved Recommendations', font=('Arial', 30, 'bold'), text_color=THEME_COlOR).pack(padx=10, pady=20)
+        
         # fetching user's saved_recommendations from database
         query = f"""
             SELECT * FROM saved_recommendations
@@ -224,12 +226,12 @@ class App:
         """
         res = self.cur.execute(query)
         results = res.fetchall()
-        print(results)
+
         if len(results) == 0:
-            CTkLabel(master=saved_recommendations_frame, text='No saved recommendations to show', font=('Arial', 20)).pack(pady=20)
+            CTkLabel(master=self.saved_recommendations_frame, text='No saved recommendations to show', font=('Arial', 20)).pack(pady=20)
         else:
             for rec in results:
-                rec_frame = CTkFrame(master=saved_recommendations_frame, width=670, height=170, fg_color=LIGHT_BLUE, corner_radius=5)
+                rec_frame = CTkFrame(master=self.saved_recommendations_frame, width=670, height=170, fg_color=LIGHT_BLUE, corner_radius=5)
                 rec_frame.pack(pady=10)
                 rec_frame.pack_propagate(0)
                 CTkButton(rec_frame, text='Delete', height=30, width=70, fg_color=ERROR_COLOR, corner_radius=5, command=lambda x=rec, y=rec_frame: self.delete_recommendation(x, y)).pack(anchor='e')
@@ -248,6 +250,10 @@ class App:
         rec_frame.destroy()
 
     def logout(self):
+        try:
+            self.recommendations_page.pack_forget()
+        except AttributeError:
+            pass
         self.dashboard_frame.pack_forget()
         self.create_account_page()
 
@@ -279,7 +285,7 @@ class App:
         self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
         # dataframe to list of dictionaries
         rec_list = recommendations_df.to_dict('records')
-        print(rec_list)
+
         for rec in rec_list:
             rec_frame = CTkFrame(master=self.recommendation_frame, width=430, height=140, fg_color=LIGHT_BLUE, corner_radius=5)
             rec_frame.pack(pady=10)
@@ -343,7 +349,7 @@ class App:
         
         res = self.cur.execute(f"SELECT * FROM accounts WHERE email='{data['email']}'")
         results = res.fetchall()
-        print(results)
+
         if len(results) != 0:
             if results[0][2] == data['password']:
                 self.account_frame.pack_forget()
@@ -352,8 +358,6 @@ class App:
         else:
             self.signin_error.configure(text='Invalid email or password')
             self.signin_error.lift()
-        # self.account_frame.pack_forget()
-        # self.dashboard_page()
 
     def signup(self, name, email, password):
         data = {

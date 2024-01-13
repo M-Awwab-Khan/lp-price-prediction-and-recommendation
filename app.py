@@ -192,7 +192,6 @@ class App:
         self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
         # dataframe to list of dictionaries
         rec_list = recommendations_df.to_dict('records')
-        print(rec_list)
         for rec in rec_list:
             rec_frame = CTkFrame(master=self.recommendation_frame, width=430, height=140, fg_color=LIGHT_BLUE, corner_radius=5)
             rec_frame.pack(pady=10)

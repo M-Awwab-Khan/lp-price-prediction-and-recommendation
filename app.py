@@ -128,7 +128,7 @@ class App:
 
         # Heading
         CTkLabel(master=self.input_frame, text="Enter Specifications", text_color=THEME_COlOR, font=("Arial", 30, "bold")).pack(pady=(30, 0))
-        
+
         # Labels and Entry Frame
         labels_frame=CTkFrame(master=self.input_frame , width=300 , height=220, fg_color=WHITE)
         labels_frame.pack(pady=30, side=RIGHT,expand=True,fill=BOTH)
@@ -283,6 +283,9 @@ class App:
         self.input_frame.place(in_=self.dashboard_frame, anchor='c', relx=.3, rely=.5)
         # Recommendation Frame
         self.recommendation_frame.pack(side=RIGHT, padx=(0, 100), pady=(0, 45))
+
+        # Heading
+        CTkLabel(master=self.recommendation_frame, text='Suggested Laptops', text_color=THEME_COlOR, font=('Arial', 20, 'bold')).pack(pady=(10, 20))
         # dataframe to list of dictionaries
         rec_list = recommendations_df.to_dict('records')
 
@@ -313,16 +316,12 @@ class App:
         typename = self.typename.get()
         ram = int(self.ram.get())
         gpu = self.gpu.get()
-        weight = float(self.weight.get())
         cpu = self.cpu.get()
-        ghz = float(self.ghz.get())
         hdd = int(self.hdd.get())
         ssd = int(self.ssd.get())
         os = self.os.get()
-        screensize = float(self.screensize.get())
         x_res = int(self.resolution.get().split('x')[0])
         y_res = int(self.resolution.get().split('x')[1])
-        ppi = (((x_res**2) + (y_res**2))**0.5) / screensize
         if self.touchscreen.get() == "Yes":
             touchscreen = 1
         else:
@@ -331,15 +330,26 @@ class App:
             ips = 1
         else:
             ips = 0
-
-        input_array = np.array([brandname, typename, ram, gpu, weight, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os], dtype='object')
-        input_array = input_array.reshape(1, 13)
-        price = round(np.exp(pipe.predict(input_array)[0]))
-        recommendations_df = get_recommendations(brandname, typename, ram, gpu, weight, price, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os)
-        self.show_prediction(price)
-        for widget in self.recommendation_frame.winfo_children():
-            widget.destroy()
-        self.show_recommendations(recommendations_df)
+        try:
+            weight = float(self.weight.get())
+            ghz = float(self.ghz.get())
+            screensize = float(self.screensize.get())
+            ppi = (((x_res**2) + (y_res**2))**0.5) / screensize
+            input_array = np.array([brandname, typename, ram, gpu, weight, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os], dtype='object')
+            input_array = input_array.reshape(1, 13)
+            price = round(np.exp(pipe.predict(input_array)[0]))
+            recommendations_df = get_recommendations(brandname, typename, ram, gpu, weight, price, touchscreen, ips, ppi, cpu, ghz, hdd, ssd, os)
+            self.show_prediction(price)
+            for widget in self.recommendation_frame.winfo_children():
+                widget.destroy()
+            self.show_recommendations(recommendations_df)
+        except ValueError:
+            CTkMessagebox(
+                  message="Enter valid values for all fields", 
+                  icon="cancel", 
+                  option_1="OK",
+                  title='Error'
+                )
 
     def login(self, email, password):
         data = {

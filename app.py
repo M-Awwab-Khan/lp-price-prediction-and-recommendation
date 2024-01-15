@@ -376,14 +376,20 @@ class App:
             "password": str(password.get())
         }
         if data['name'] and data['email'] and data['password']:
-            self.cur.execute(f"""
-            INSERT INTO accounts VALUES
-                ('{data['name']}', '{data['email']}', '{data['password']}')
-            """)
-            self.con.commit()
-            self.email = data['email']
-            self.account_frame.pack_forget()
-            self.dashboard_page()
+            res = self.cur.execute(f"""SELECT email FROM accounts WHERE email='{data['email']}'""")
+            results = res.fetchall()
+            if len(results) == 0:
+                self.cur.execute(f"""
+                INSERT INTO accounts VALUES
+                    ('{data['name']}', '{data['email']}', '{data['password']}')
+                """)
+                self.con.commit()
+                self.email = data['email']
+                self.account_frame.pack_forget()
+                self.dashboard_page()
+            else:
+                self.signup_error.configure(text='This email already exists.')
+                self.signup_error.lift()
         else:
             self.signup_error.configure(text='Missing values')
             self.signup_error.lift()

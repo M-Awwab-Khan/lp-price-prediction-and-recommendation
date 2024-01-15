@@ -27,7 +27,7 @@ class App:
         self.create_account_page()
         self.con = sqlite3.connect("database.db")
         self.cur = self.con.cursor()
-
+        self.root.title("LAPTOP PRICE PREDICTION & RECOMMENDATION SYSTEM")
         self.root.mainloop()
 
     def create_account_page(self):
